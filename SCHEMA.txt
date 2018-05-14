@@ -1,0 +1,113 @@
+FINAL SCHEMA
+
+CREATE TABLE Hospitals(
+  hospitalID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  hospitalName VARCHAR(45),
+  hospitalAddress VARCHAR(100),
+  hospitalNum VARCHAR(10),
+  isHospitalDeleted VARCHAR(1)
+);
+
+CREATE TABLE Services(
+  serviceID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  serviceName VARCHAR(45),
+  medsPrescribed VARCHAR(1),
+  hospitalID INT,
+  isServiceDeleted VARCHAR(1),
+  FOREIGN KEY (hospitalID) REFERENCES Hospitals(hospitalID)
+);
+
+CREATE TABLE Doctors(
+  doctorID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  doctorName VARCHAR(45),
+  doctorNum VARCHAR(10),
+  doctorSpecialty VARCHAR(45),
+  hospitalID INT,
+  isDoctorDeleted VARCHAR(1),
+  FOREIGN KEY (serviceID) REFERENCES Services(serviceID),
+  FOREIGN KEY (hospitalID) REFERENCES Hospitals(hospitalID)
+);
+
+CREATE TABLE Patients(
+  patientID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  patientName VARCHAR(45),
+  patientNum VARCHAR(10),
+  patientAddress VARCHAR(100),
+  patientSymptoms VARCHAR(100),
+  isPatientDeleted VARCHAR(1),
+  FOREIGN KEY (doctorID) REFERENCES Doctors(doctorID)
+);
+
+CREATE TABLE Payments(
+  paymentID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  paymentBy VARCHAR(45),
+  paymentDate VARCHAR(17),
+  serviceID INT,
+  patientID INT,
+  isPaymentDeleted VARCHAR(1),
+  FOREIGN KEY (serviceID) REFERENCES Services(serviceID),
+  FOREIGN KEY (patientID) REFERENCES Patients(patientID)
+);
+
+CREATE TABLE Patient_Doctor(
+  patientID INT,
+  doctorID INT,
+  FOREIGN KEY (patientID) REFERENCES Patients(patientID),
+  FOREIGN KEY (doctorID) REFERENCES Doctors(doctorID)
+);
+
+CREATE TABLE Doctor_Services(
+  serviceID INT,
+  doctorID INT,
+  FOREIGN KEY (serviceID) REFERENCES Services(serviceID),
+  FOREIGN KEY (doctorID) REFERENCES Doctors(doctorID)
+) ;
+
+CREATE TABLE Hospital_Login (
+  hospitalID INT,
+  hospitalPassword VARCHAR(30),
+  FOREIGN KEY (hospitalID) REFERENCES Hospitals(hospitalID)
+);
+
+CREATE TABLE Doctor_Login (
+  doctorID INT,
+  doctorPassword VARCHAR(30),
+  FOREIGN KEY (doctorID) REFERENCES Doctors(doctorID)
+);
+
+CREATE TABLE Patient_Login (
+  patientID INT,
+  patientPassword VARCHAR(30),
+  FOREIGN KEY (patientID) REFERENCES Patients(patientID)
+);
+
+CREATE VIEW HosDocSer AS
+  SELECT h.hospitalID, h.hospitalName, s.serviceID, s.serviceName, s.medsPrescribed,
+    d.doctorID, d.doctorName, d.doctorSpecialty
+  FROM Hospitals h
+  JOIN Services s ON h.hospitalID = s.hospitalID
+  JOIN Doctor_Services ds ON s.serviceID = ds.serviceID
+  JOIN Doctors d ON d.doctorID = ds.doctorID
+
+CREATE VIEW DocSerPat AS
+  SELECT d.doctorID, d.doctorName, d.doctorSpecialty, s.serviceID, s.serviceName,
+    s.medsPrescribed, p.patientID, p.patientName, p.patientSymptoms
+  FROM Doctors d
+  JOIN Doctor_Services ds ON d.doctorID = ds.doctorID
+  JOIN Services s ON ds.serviceID = s.serviceID
+  JOIN Patient_Doctor pd ON pd.doctorID = d.doctorID
+  JOIN Patients p ON p.patientID = pd.patientID;
+
+CREATE VIEW PatPerDoc AS
+  SELECT d.doctorID, d.doctorName, COUNT(p.patientID) AS TotalPatientsTreated
+  FROM Doctors d
+  JOIN Patient_Doctor pd ON d.doctorID = pd.doctorID
+  JOIN Patients p ON p.patientID = pd.patientID
+  GROUP BY d.doctorID
+
+CREATE VIEW TotalDocScripts AS
+  SELECT d.doctorID, d.doctorName, SUM(s.medsPrescribed) AS TotalMedsPrescribed
+  FROM Doctors d
+  JOIN Doctor_Services ds ON ds.doctorID = d.doctorID
+  JOIN Services s ON s.serviceID = ds.serviceID
+  GROUP BY d.doctorID
