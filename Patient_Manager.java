@@ -1,5 +1,8 @@
 package com.company;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,7 +55,7 @@ public class Patient_Manager {
     String isDeleted;
 
 
-    public void display(int patientID) throws SQLException {
+    public void display(int patientID, BufferedWriter bw) throws SQLException, IOException {
 
         System.out.println("\nDisplaying Payments: ");
 
@@ -66,6 +69,8 @@ public class Patient_Manager {
 
         pS = connection.prepareStatement(sqlDisplay);
         rset = pS.executeQuery();
+
+        bw.write(pS.toString());
 
         System.out.println("\nYour payment records:");
 
@@ -83,7 +88,7 @@ public class Patient_Manager {
         }
     }
 
-    public void update(int patientID) throws SQLException {
+    public void update(int patientID, BufferedWriter bw) throws SQLException, IOException {
 
         try {
             connection = mysqlConnection.MySQL_Connection();
@@ -137,6 +142,7 @@ public class Patient_Manager {
                 System.out.println("\nInput Error.");
                 break;
         }
+        bw.write(pS.toString());
         connection.setAutoCommit(false); // No commit per statement
         try{
             pS.executeUpdate();
@@ -146,7 +152,7 @@ public class Patient_Manager {
         }
     }
 
-    public void delete(int patientID) throws SQLException {
+    public void delete(int patientID, BufferedWriter bw) throws SQLException, IOException {
 
         try {
             connection = mysqlConnection.MySQL_Connection();
@@ -163,6 +169,7 @@ public class Patient_Manager {
             pS = connection.prepareStatement("UPDATE Patients SET isPatientDeleted = 1" +
                     " WHERE patientID = " + patientID);
         }
+        bw.write(pS.toString());
         connection.setAutoCommit(false);
         try{
             pS.executeUpdate();
@@ -172,7 +179,7 @@ public class Patient_Manager {
         }
     }
 
-    public void search(int patientID) throws SQLException {
+    public void search(int patientID, BufferedWriter bw) throws SQLException, IOException {
         do{
             System.out.println("\nEnter Number to Search:\n" +
                     "1.) Hospitals\n" +
@@ -225,6 +232,7 @@ public class Patient_Manager {
                         pS = connection.prepareStatement("SELECT * FROM Hospitals WHERE hospitalNum = '" + hospitalRecord.getHospitalNum() + "' AND isHospitalDeleted IS NULL");
                         break;
                 }
+                bw.write(pS.toString());
                 connection.setAutoCommit(false);
                 try{
                     rset = pS.executeQuery();
@@ -275,6 +283,7 @@ public class Patient_Manager {
                         pS = connection.prepareStatement("SELECT * FROM Doctors WHERE doctorSpecialty LIKE '%" + hospitalRecord.getDoctorSpecialty() + "%' AND isDoctorDeleted IS NULL");
                         break;
                 }
+                bw.write(pS.toString());
                 connection.setAutoCommit(false);
                 try{
                     rset = pS.executeQuery();

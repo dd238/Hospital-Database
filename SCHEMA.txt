@@ -89,15 +89,6 @@ CREATE VIEW HosDocSer AS
   JOIN Doctor_Services ds ON s.serviceID = ds.serviceID
   JOIN Doctors d ON d.doctorID = ds.doctorID
 
-CREATE VIEW DocSerPat AS
-  SELECT d.doctorID, d.doctorName, d.doctorSpecialty, s.serviceID, s.serviceName,
-    s.medsPrescribed, p.patientID, p.patientName, p.patientSymptoms
-  FROM Doctors d
-  JOIN Doctor_Services ds ON d.doctorID = ds.doctorID
-  JOIN Services s ON ds.serviceID = s.serviceID
-  JOIN Patient_Doctor pd ON pd.doctorID = d.doctorID
-  JOIN Patients p ON p.patientID = pd.patientID;
-
 CREATE VIEW PatPerDoc AS
   SELECT d.doctorID, d.doctorName, COUNT(p.patientID) AS TotalPatientsTreated
   FROM Doctors d

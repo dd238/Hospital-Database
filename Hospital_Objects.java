@@ -514,7 +514,45 @@ public class Hospital_Objects {
     }
     public void setPaymentDate(String paymentDate)
     {
-        this.paymentDate = paymentDate;
+        String[] splited = serviceName.split("-.");
+        int i = splited.length-1;
+        if(Integer.parseInt(splited[i]) >= 0 && Integer.parseInt(splited[i]) <= 60 && i > 0)
+        {
+            i--;
+
+            if(Integer.parseInt(splited[i]) >= 0 && Integer.parseInt(splited[i]) <= 60 && i > 0)
+            {
+                i--;
+                if(Integer.parseInt(splited[i]) >= 0 && Integer.parseInt(splited[i]) <= 24 && i > 0)
+                {
+                    i--;
+                    if(Integer.parseInt(splited[i]) >= 16 && Integer.parseInt(splited[i]) <= 18 && i > 0)
+                    {
+                        i--;
+                        if(Integer.parseInt(splited[i]) >= 1 && Integer.parseInt(splited[i]) <= 31 && i > 0)
+                        {
+                            i--;
+                            if(Integer.parseInt(splited[i]) >= 1 && Integer.parseInt(splited[i]) <= 12 && i > 0)
+                            {
+                                this.paymentDate = paymentDate;
+
+                            }
+                            return;
+
+                        }
+                        return;
+
+                    }
+                    return;
+
+                }
+                return;
+
+            }
+            return;
+
+        }
+        return;
     }
     public String getIsPaymentDeleted()
     {

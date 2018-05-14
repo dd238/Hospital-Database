@@ -1,5 +1,8 @@
 package com.company;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,16 +55,18 @@ public class Doctor_Manager {
 
     String isDeleted;
 
+    FileWriter fw;
+    BufferedWriter bw;
 
-    public void display(int doctorID) throws SQLException {
+
+    public void display(int doctorID, BufferedWriter bw) throws SQLException, IOException {
 
         do{
             System.out.println("\nEnter Number for Display:\n" +
                     "1.) Hospitals\n" +
                     "2.) Services\n" +
                     "3.) Doctors\n" +
-                    "4.) Scripts Written\n" +
-                    "5.) Doctors/Patients\n");
+                    "4.) Scripts Written\n");
             display = keyboard.nextInt();
             keyboard.nextLine();
             switch (display) {
@@ -81,10 +86,6 @@ public class Doctor_Manager {
                     sqlDisplay = "SELECT * FROM TotalDocScripts WHERE doctorID = " + doctorID;
                     isDefault = false;
                     break;
-                case 5:
-                    sqlDisplay = "SELECT * FROM DocSerPat WHERE doctorID = " + doctorID;
-                    isDefault = false;
-                    break;
                 default:
                     System.out.println("Input Error.");
                     isDefault = true;
@@ -100,6 +101,8 @@ public class Doctor_Manager {
 
         pS = connection.prepareStatement(sqlDisplay);
         rset = pS.executeQuery();
+
+        bw.write(pS.toString());
 
         System.out.println("\nThe records selected are:");
 
@@ -144,28 +147,13 @@ public class Doctor_Manager {
                     System.out.println(doctorID + ", " + doctorName + ", " + TotalMedsPrescribed);
                 }
                 break;
-            case 5:
-                while (rset.next()) {   // Move the cursor to the next row, return false if no more row\
-                    doctorID = rset.getInt("doctorID");
-                    String doctorName = rset.getString("doctorName");
-                    String doctorSpecialty = rset.getString("doctorSpecialty");
-                    int serviceID = rset.getInt("serviceID");
-                    String serviceName = rset.getString("serviceName");
-                    String medsPrescribed = rset.getString("medsPrescribed");
-                    int patientID = rset.getInt("patientID");
-                    String patientName = rset.getString("patientName");
-                    String patientSymptoms = rset.getString("patientSymptoms");
-                    System.out.println(doctorID + ", " + doctorName + ", " + doctorSpecialty + ", " + serviceID + ", " +
-                            serviceName + "," + medsPrescribed + "," + patientID + "," + patientName + "," + patientSymptoms);
-                }
-                break;
             default:
                 System.out.println("\nInput does not match any tables.");
                 break;
         }
     }
 
-    public void create(int doctorID) throws SQLException {
+    public void create(int doctorID, BufferedWriter bw) throws SQLException, IOException {
 
         do{
             System.out.println("\nEnter Number to Create:\n" +
@@ -238,6 +226,10 @@ public class Doctor_Manager {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+
+                bw.write(pS.toString());
+                bw.write(pS1.toString());
+
                 break;
 
             case 2:
@@ -288,11 +280,15 @@ public class Doctor_Manager {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+
+                bw.write(pS.toString());
+                bw.write(pS1.toString());
+
                 break;
         }
     }
 
-    public void update(int doctorID) throws SQLException {
+    public void update(int doctorID, BufferedWriter bw) throws SQLException, IOException {
 
         do{
             System.out.println("\nEnter Number to Update:\n" +
@@ -412,6 +408,8 @@ public class Doctor_Manager {
                         break;
                 }
         }
+        bw.write(pS.toString());
+
         connection.setAutoCommit(false); // No commit per statement
         try{
             pS.executeUpdate();
@@ -421,7 +419,7 @@ public class Doctor_Manager {
         }
     }
 
-    public void delete() throws SQLException {
+    public void delete(BufferedWriter bw) throws SQLException, IOException {
         do{
             System.out.println("\nEnter Number to Delete:\n" +
                     "1.) Services\n" +
@@ -458,6 +456,8 @@ public class Doctor_Manager {
                         " WHERE patientID = " + hospitalRecord.getPatientID());
                 break;
         }
+        bw.write(pS.toString());
+
         connection.setAutoCommit(false); // No commit per statement
         try{
             pS.executeUpdate();
@@ -467,7 +467,7 @@ public class Doctor_Manager {
         }
     }
 
-    public void search() throws SQLException {
+    public void search(BufferedWriter bw) throws SQLException, IOException {
         do{
             System.out.println("\nEnter Number to Search:\n" +
                     "1.) Hospitals\n" +
@@ -528,6 +528,7 @@ public class Doctor_Manager {
                         pS = connection.prepareStatement("SELECT * FROM Hospitals WHERE hospitalNum = '" + hospitalRecord.getHospitalNum() + "'");
                         break;
                 }
+                bw.write(pS.toString());
                 connection.setAutoCommit(false); // No commit per statement
                 try{
                     rset = pS.executeQuery();
@@ -584,6 +585,7 @@ public class Doctor_Manager {
                         pS = connection.prepareStatement("SELECT * FROM Services WHERE hospitalID = " + hospitalRecord.getHospitalID());
                         break;
                 }
+                bw.write(pS.toString());
                 connection.setAutoCommit(false); // No commit per statement
                 try{
                     rset = pS.executeQuery();
@@ -652,6 +654,7 @@ public class Doctor_Manager {
                         pS = connection.prepareStatement("SELECT * FROM Doctors WHERE hospitalID = " + hospitalRecord.getHospitalID());
                         break;
                 }
+                bw.write(pS.toString());
                 connection.setAutoCommit(false); // No commit per statement
                 try{
                     rset = pS.executeQuery();
@@ -678,11 +681,10 @@ public class Doctor_Manager {
                             "2.) Patient Name\n" +
                             "3.) Patient Number\n" +
                             "4.) Patient Address\n" +
-                            "5.) Patient Symptoms\n" +
-                            "6.) Doctor ID\n");
+                            "5.) Patient Symptoms");
                     searchType = keyboard.nextInt();
                     keyboard.nextLine();
-                    if (searchType < 7 || searchType > 0) {
+                    if (searchType < 6 || searchType > 0) {
                         isDefault = false;
                     } else {
                         isDefault = true;
@@ -716,12 +718,8 @@ public class Doctor_Manager {
                         hospitalRecord.setPatientSymptoms(keyboard.nextLine());
                         pS = connection.prepareStatement("SELECT * FROM Patients WHERE patientSymptoms LIKE '%" + hospitalRecord.getPatientSymptoms() + "%'");
                         break;
-                    case 6:
-                        System.out.println("\nEnter the Doctor ID to search for: ");
-                        hospitalRecord.setDoctorID(keyboard.nextInt());
-                        pS = connection.prepareStatement("SELECT * FROM Patients WHERE doctorID = " + hospitalRecord.getDoctorID());
-                        break;
                 }
+                bw.write(pS.toString());
                 connection.setAutoCommit(false); // No commit per statement
                 try{
                     rset = pS.executeQuery();
@@ -736,10 +734,9 @@ public class Doctor_Manager {
                     String patientNum = rset.getString("patientNum");
                     String patientAddress = rset.getString("patientAddress");
                     String patientSymptoms = rset.getString("patientSymptoms");
-                    int doctorID = rset.getInt("doctorID");
                     String isPatientDeleted = rset.getString("isPatientDeleted");
                     System.out.println(patientID + ", " + patientName + ", " + patientNum + ", " + patientAddress + ", " +
-                            patientSymptoms + ", " + doctorID);
+                            patientSymptoms);
                 }
                 break;
         }

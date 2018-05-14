@@ -1,5 +1,8 @@
 package com.company;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,35 +30,23 @@ public class DB_Manager {
     boolean isLoggedIn = true;
 
     int hospitalID;
-    String hospitalName;
-    String hospitalAddress;
-    String hospitalNum;
-    String isHospitalDeleted;
-
-    int serviceID;
-    String serviceName;
-    String medsPrescribed;
 
     int doctorID;
-    String doctorName;
-    String doctorNum;
-    String doctorSpecialty;
-    String isDoctorDeleted;
 
     int patientID;
-    String patientName;
-    String patientNum;
-    String patientAddress;
-    String patientSymptoms;
-    String isPatientDeleted;
-
-    int paymentID;
-    String paymentBy;
-    String paymentDate;
 
     int option;
 
-    public void verifyAdmin(int hospitalID, String hospitalPassword) throws SQLException {
+    FileWriter fw;
+    BufferedWriter bw;
+
+    public DB_Manager() throws IOException {
+    }
+
+    public void verifyAdmin(int hospitalID, String hospitalPassword) throws SQLException, IOException {
+        fw = new FileWriter("hospitalLog.log");
+        bw = new BufferedWriter(fw);
+
         try {
             connection = mysqlConnection.MySQL_Connection();
         } catch (Exception e) {
@@ -81,6 +72,8 @@ public class DB_Manager {
             return;
         }
 
+        bw.write(pS.toString());
+
         do{
                 System.out.println("\nEnter Number for Command:\n" +
                         "1.) Display\n" +
@@ -94,22 +87,23 @@ public class DB_Manager {
                 keyboard.nextLine();
                 switch (option) {
                     case 1:
-                        hosManager.display(hospitalID);
+                        hosManager.display(hospitalID, bw);
                         break;
                     case 2:
-                        hosManager.create(hospitalID);
+                        hosManager.create(hospitalID, bw);
                         break;
                     case 3:
-                        hosManager.update();
+                        hosManager.update(bw);
                         break;
                     case 4:
-                        hosManager.delete();
+                        hosManager.delete(bw);
                         break;
                     case 5:
-                        hosManager.search();
+                        hosManager.search(bw);
                         break;
                     case 6:
                         isLoggedIn = false;
+                        bw.close();
                         break;
                     default:
                         System.out.println("Invalid Entry");
@@ -118,7 +112,9 @@ public class DB_Manager {
         }while(isLoggedIn == true);
     }
 
-    public void verifyDoctor(int doctorID, String doctorPassword) throws SQLException {
+    public void verifyDoctor(int doctorID, String doctorPassword) throws SQLException, IOException {
+        fw = new FileWriter("doctorLog.log");
+        bw = new BufferedWriter(fw);
         try {
             connection = mysqlConnection.MySQL_Connection();
         } catch (Exception e) {
@@ -143,6 +139,9 @@ public class DB_Manager {
             System.out.println("\nUsername or Password Invalid");
             return;
         }
+
+        bw.write(pS.toString());
+
         do{
                 System.out.println("\nEnter Number for Command:\n" +
                         "1.) Display\n" +
@@ -156,22 +155,23 @@ public class DB_Manager {
                 keyboard.nextLine();
                 switch (option) {
                     case 1:
-                        docManager.display(doctorID);
+                        docManager.display(doctorID, bw);
                         break;
                     case 2:
-                        docManager.create(doctorID);
+                        docManager.create(doctorID, bw);
                         break;
                     case 3:
-                        docManager.update(doctorID);
+                        docManager.update(doctorID, bw);
                         break;
                     case 4:
-                        docManager.delete();
+                        docManager.delete(bw);
                         break;
                     case 5:
-                        docManager.search();
+                        docManager.search(bw);
                         break;
                     case 6:
                         isLoggedIn = false;
+                        bw.close();
                         break;
                     default:
                         System.out.println("Invalid Entry");
@@ -181,7 +181,9 @@ public class DB_Manager {
         }while(isLoggedIn == true);
 
     }
-    public void verifyPatient(int patientID, String patientPassword) throws SQLException {
+    public void verifyPatient(int patientID, String patientPassword) throws SQLException, IOException {
+        fw = new FileWriter("patientLog.log");
+        bw = new BufferedWriter(fw);
         try {
             connection = mysqlConnection.MySQL_Connection();
         } catch (Exception e) {
@@ -206,6 +208,8 @@ public class DB_Manager {
             return;
         }
 
+        bw.write(pS.toString());
+
         do {
                 System.out.println("\nEnter Number for Command:\n" +
                         "1.) Display\n" +
@@ -218,19 +222,20 @@ public class DB_Manager {
                 keyboard.nextLine();
                 switch (option) {
                     case 1:
-                        patManager.display(patientID);
+                        patManager.display(patientID, bw);
                         break;
                     case 2:
-                        patManager.update(patientID);
+                        patManager.update(patientID, bw);
                         break;
                     case 3:
-                        patManager.delete(patientID);
+                        patManager.delete(patientID, bw);
                         break;
                     case 4:
-                        patManager.search(patientID);
+                        patManager.search(patientID, bw);
                         break;
                     case 5:
                         isLoggedIn = false;
+                        bw.close();
                         break;
                     default:
                         System.out.println("Invalid Entry");
